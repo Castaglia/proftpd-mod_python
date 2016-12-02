@@ -10,7 +10,7 @@ install:
   # for unit tests
   - sudo apt-get install -y check
   # for Python support
-  - sudo apt-get install -y python-dev libpython-dev
+  - sudo apt-get install -y python-dev
   # libpython-dev only appears for Ubuntu 14.04 and later
   # - sudo apt-get install -y libpython-dev
   # for static code analysis
