@@ -1,5 +1,5 @@
 /*
- * ProFTPD - mod_vroot API testsuite
+ * ProFTPD - mod_python API testsuite
  * Copyright (c) 2016 TJ Saunders <tj@castaglia.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,10 +24,10 @@
 
 /* Testsuite management */
 
-#ifndef MOD_VROOT_TESTS_H
-#define MOD_VROOT_TESTS_H
+#ifndef MOD_PYTHON_TESTS_H
+#define MOD_PYTHON_TESTS_H
 
-#include "mod_vroot.h"
+#include "mod_python.h"
 
 #ifdef HAVE_CHECK_H
 # include <check.h>
@@ -35,12 +35,10 @@
 # error "Missing Check installation; necessary for ProFTPD testsuite"
 #endif
 
-Suite *tests_get_path_suite(void);
-Suite *tests_get_alias_suite(void);
-Suite *tests_get_fsio_suite(void);
+Suite *tests_get_python_suite(void);
 
 unsigned int recvd_signal_flags;
 extern pid_t mpid;
 extern server_rec *main_server;
 
-#endif /* MOD_VROOT_TESTS_H */
+#endif /* MOD_PYTHON_TESTS_H */

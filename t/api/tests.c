@@ -1,5 +1,5 @@
 /*
- * ProFTPD - mod_vroot API testsuite
+ * ProFTPD - mod_python API testsuite
  * Copyright (c) 2016 TJ Saunders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,9 +30,7 @@ struct testsuite_info {
 };
 
 static struct testsuite_info suites[] = {
-  { "path",		tests_get_path_suite },
-  { "alias",		tests_get_alias_suite },
-  { "fsio",		tests_get_fsio_suite },
+  { "python",		tests_get_python_suite },
 
   { NULL, NULL }
 };
@@ -63,7 +61,7 @@ int main(int argc, char *argv[]) {
    */
   srunner_set_log(runner, log_file);
 
-  requested = getenv("VROOT_TEST_SUITE");
+  requested = getenv("PYTHON_TEST_SUITE");
   if (requested) {
     Suite *suite;
 
@@ -73,7 +71,7 @@ int main(int argc, char *argv[]) {
 
     } else {
       fprintf(stderr,
-        "No such test suite ('%s') requested via VROOT_TEST_SUITE\n",
+        "No such test suite ('%s') requested via PYTHON_TEST_SUITE\n",
         requested);
       return EXIT_FAILURE;
     }
@@ -94,7 +92,7 @@ int main(int argc, char *argv[]) {
   /* Configure the Trace API to write to stderr. */
   pr_trace_use_stderr(TRUE);
 
-  requested = getenv("VROOT_TEST_NOFORK");
+  requested = getenv("PYTHON_TEST_NOFORK");
   if (requested) {
     srunner_set_fork_status(runner, CK_NOFORK);
   } else {

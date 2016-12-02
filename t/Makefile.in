@@ -39,16 +39,12 @@ TEST_API_DEPS=\
   $(top_srcdir)/src/env.o \
   $(top_srcdir)/src/trace.o \
   $(top_srcdir)/src/support.o \
-  $(module_srcdir)/alias.o \
-  $(module_srcdir)/path.o \
-  $(module_srcdir)/fsio.o
+  $(module_srcdir)/python.o
 
 TEST_API_LIBS=-lcheck
 
 TEST_API_OBJS=\
-  api/alias.o \
-  api/path.o \
-  api/fsio.o \
+  api/python.o \
   api/stubs.o \
   api/tests.o
 

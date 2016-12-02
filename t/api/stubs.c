@@ -1,5 +1,5 @@
 /*
- * ProFTPD - mod_vroot API testsuite
+ * ProFTPD - mod_python API testsuite
  * Copyright (c) 2016 TJ Saunders <tj@castaglia.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -36,9 +36,8 @@ module *static_modules[] = { NULL };
 module *loaded_modules = NULL;
 xaset_t *server_list = NULL;
 
-int vroot_logfd = -1;
-pool *vroot_pool = NULL;
-unsigned int vroot_opts = 0;
+int python_logfd = -1;
+unsigned long python_opts = 0;
 
 int login_check_limits(xaset_t *set, int recurse, int and, int *found) {
   return TRUE;

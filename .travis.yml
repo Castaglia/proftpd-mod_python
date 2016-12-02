@@ -37,7 +37,7 @@ script:
   - cp install-sh proftpd/contrib/mod_python/
   - cp -R t/ proftpd/contrib/mod_python/t/
   - cd proftpd
-  - ./configure --enable-devel=coverage --enable-tests --with-module=mod_proxy
+  - ./configure --enable-devel=coverage --enable-tests --with-module=mod_python
   - make
   - cd contrib/mod_python && make TEST_VERBOSE=1 check && cd ../../
 
