@@ -1,0 +1,51 @@
+env: TRAVIS_CI=true
+language: c
+
+compiler:
+  - gcc
+  - clang
+
+install:
+  - sudo apt-get update -qq
+  # for unit tests
+  - sudo apt-get install -y check
+  # for Python support
+  - sudo apt-get install -y python-dev libpython-dev
+  # for static code analysis
+  - sudo apt-get install -y cppcheck rats
+  # for test code coverage
+  - sudo apt-get install -y lcov
+  - gem install coveralls-lcov
+  # For reference
+  - python --version
+
+before_script:
+  - cd ${TRAVIS_BUILD_DIR}
+  - lcov --directory . --zerocounters
+
+script:
+  # - find . -type f -name "*.c" -print | grep -v t\/ | xargs cppcheck 2>&1
+  # - find . -type f -name "*.c" -print | grep -v t\/ | xargs rats --language=c
+  - git clone https://github.com/proftpd/proftpd.git
+  - mkdir -p proftpd/contrib/mod_python/
+  - cp *.[ch] proftpd/contrib/mod_python/
+  - cp mod_vroot.* proftpd/contrib/mod_python/
+  - cp Makefile.in proftpd/contrib/mod_python/
+  - cp config* proftpd/contrib/mod_python/
+  - cp install-sh proftpd/contrib/mod_python/
+  - cp -R t/ proftpd/contrib/mod_python/t/
+  - cd proftpd
+  - ./configure --enable-devel=coverage --enable-tests --with-module=mod_proxy
+  - make
+  - cd contrib/mod_python && make TEST_VERBOSE=1 check && cd ../../
+
+after_success:
+  - cd ${TRAVIS_BUILD_DIR}
+  # capture the test coverage info
+  - lcov --ignore-errors gcov,source --base-directory ${TRAVIS_BUILD_DIR}/proftpd/contrib/mod_python --directory proftpd/contrib/mod_python --capture --output-file coverage.info
+  # filter out system and test code
+  - lcov --remove coverage.info 'api/*' 't/*' '/usr/*' --output-file coverage.info
+  # debug before upload
+  - lcov --list coverage.info
+  # upload coverage info to coveralls
+  - coveralls-lcov coverage.info

@@ -1,0 +1,195 @@
+dnl ProFTPD - mod_python
+dnl Copyright (c) 2016 TJ Saunders <tj@castaglia.org>
+dnl
+dnl This program is free software; you can redistribute it and/or modify
+dnl it under the terms of the GNU General Public License as published by
+dnl the Free Software Foundation; either version 2 of the License, or
+dnl (at your option) any later version.
+dnl
+dnl This program is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl GNU General Public License for more details.
+dnl
+dnl You should have received a copy of the GNU General Public License
+dnl along with this program; if not, write to the Free Software
+dnl Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA 02110-1335, USA.
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(./mod_python.c)
+
+AC_CANONICAL_SYSTEM
+
+ostype=`echo $build_os | sed 's/\..*$//g' | sed 's/-.*//g' | tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ`
+
+AC_PROG_CC
+AC_PROG_CPP
+AC_AIX
+AC_ISC_POSIX
+AC_MINIX
+AC_PROG_MAKE_SET
+
+dnl Need to support/handle the --enable-devel option, to see if coverage
+dnl is being used
+AC_ARG_ENABLE(devel,
+  [AC_HELP_STRING(
+    [--enable-devel],
+    [enable developer-only code (default=no)])
+  ],
+  [
+    if test x"$enableval" != xno ; then
+      if test `echo $enableval | grep -c coverage` = "1" ; then
+        UTILS_LIBS="--coverage $UTILS_LIBS"
+      fi
+    fi
+  ])
+
+dnl Need to support/handle the --with-includes and --with-libraries options
+AC_ARG_WITH(includes,
+  [AC_HELP_STRING(
+    [--with-includes=LIST],
+    [add additional include paths to proftpd. LIST is a colon-separated list of include paths to add e.g. --with-includes=/some/mysql/include:/my/include])
+  ],
+  [ ac_addl_includes=`echo "$withval" | sed -e 's/:/ /g'` ;
+    for ainclude in $ac_addl_includes; do
+      if test x"$ac_build_addl_includes" = x ; then
+        ac_build_addl_includes="-I$ainclude"
+      else
+        ac_build_addl_includes="-I$ainclude $ac_build_addl_includes"
+      fi
+    done
+    CPPFLAGS="$CPPFLAGS $ac_build_addl_includes"
+  ])
+
+AC_ARG_WITH(libraries,
+  [AC_HELP_STRING(
+    [--with-libraries=LIST],
+    [add additional library paths to proftpd. LIST is a colon-separated list of include paths to add e.g. --with-libraries=/some/mysql/libdir:/my/libs])
+  ],
+  [ ac_addl_libdirs=`echo "$withval" | sed -e 's/:/ /g'` ;
+    for alibdir in $ac_addl_libdirs; do
+      if test x"$ac_build_addl_libdirs" = x ; then
+        ac_build_addl_libdirs="-L$alibdir"
+      else
+        ac_build_addl_libdirs="-L$alibdir $ac_build_addl_libdirs"
+      fi
+    done
+    LDFLAGS="$LDFLAGS $ac_build_addl_libdirs"
+  ])
+
+AC_HEADER_STDC
+AC_CHECK_HEADERS(stdlib.h unistd.h)
+
+AC_MSG_CHECKING(for --with-python)
+AC_ARG_WITH(python, [--with-python=PATH path to specific Python binary],
+  [AC_HELP_STRING(
+    [--with-python=PATH],
+    [path to specific Python executable],
+  )],
+  [
+    PYTHON_BIN="$withval"
+    AC_MSG_RESULT($PYTHON_BIN)
+  ],
+  [
+    AC_MSG_RESULT(no)
+  ])
+
+dnl Check for the Python executable
+if test -z "$PYTHON_BIN"; then
+  AC_PATH_PROG(PYTHON_BIN, python)
+  if test -z "$PYTHON_BIN"; then
+    AC_MSG_ERROR([python executable not found in path])
+  fi
+fi
+
+dnl Discover the Python version
+AC_MSG_CHECKING(Python version)
+PYTHON_VERSION=`$PYTHON_BIN -c ['import sys; print(sys.version[:3])']`
+PYTHON_MAJOR_VERSION=`$PYTHON_BIN -c ['import sys; print(sys.version[:1])']`
+PYTHON_MINOR_VERSION=`$PYTHON_BIN -c ['import sys; print(sys.version.split(".")[1])']`
+AC_MSG_RESULT($PYTHON_VERSION)
+
+dnl Ensure that the version is >= 2.6 for Python 2, and >= 3.3 for Python 3
+if test "$PYTHON_MAJOR_VERSION" -lt "2"; then
+  AC_MSG_ERROR([This version of mod_python only works with Python 2 or later; you have $PYTHON_VERSION.])
+fi
+if test "$PYTHON_MAJOR_VERSION" -eq "2"; then
+  if test "$PYTHON_MINOR_VERSION" -lt "6"; then
+    AC_MSG_ERROR([This version of mod_python only works with Python 2.6 or later; you have $PYTHON_VERSION.])
+  fi
+fi
+if test "$PYTHON_MAJOR_VERSION" -eq "3"; then
+  if test "$PYTHON_MINOR_VERSION" -lt "4"; then
+  AC_MSG_ERROR([This version of mod_python only works with Python 3.3 or later; you have $PYTHON_VERSION.])
+  fi
+fi
+
+dnl Discover Python's compilation flags/options
+PYTHON_CFLAGS=`$PYTHON_BIN -c 'from distutils import sysconfig; \
+  print(" ".join(filter(lambda x: x.startswith("-D"), \
+  sysconfig.get_config_var("CFLAGS").split())))'`
+
+PYTHON_INCLUDES=`$PYTHON_BIN -c 'from distutils import sysconfig; \
+  print("-I" + sysconfig.get_config_var("INCLUDEPY"))'`
+
+PYTHON_FRAMEWORK_DIR=`$PYTHON_BIN -c 'from distutils import sysconfig; \
+  print(sysconfig.get_config_var("PYTHONFRAMEWORKDIR"))'`
+
+if test "$PYTHON_FRAMEWORK_DIR" = "no-framework"; then
+  py_ldflags1=`$PYTHON_BIN -c 'import distutils.sysconfig; \
+    print("-L" + distutils.sysconfig.get_config_var("LIBDIR"))'`
+  py_ldflags2=`$PYTHON_BIN -c 'import distutils.sysconfig; \
+    print("-L" + distutils.sysconfig.get_python_lib(plat_specific=1, \
+    standard_lib=1) +"/config")'`
+
+  PYTHON_LDFLAGS="$py_ldflags1 $py_ldflags2"
+
+  if test "$PYTHON_MAJOR_VERSION" -eq "3"; then
+    py_libs1="-lpython${PYTHON_MAJOR_VERSION}"
+  else
+    py_libs1="-lpython${PYTHON_VERSION}"
+  fi
+
+  py_libs2=`$PYTHON_BIN -c 'from distutils import sysconfig; \
+    print(sysconfig.get_config_var("LIBS"))'`
+
+  PYTHON_LIBS="$py_libs1 $py_libs2"
+else
+  PYTHON_FRAMEWORK_PREFIX=`$PYTHON_BIN -c 'from distutils import sysconfig; \
+    print(sysconfig.get_config_var("PYTHONFRAMEWORKPREFIX"))'`
+  PYTHON_FRAMEWORK=`$PYTHON_BIN -c 'from distutils import sysconfig; \
+    print(sysconfig.get_config_var("PYTHONFRAMEWORK"))'`
+
+  py_ldflags1="-Wl,-F${PYTHON_FRAMEWORK_PREFIX} -framework ${PYTHON_FRAMEWORK}"
+
+  py_framework_path="${PYTHONFRAMEWORKDIR}/Versions/${PyVERSION}/${PYTHONFRAMEWORK}"
+  py_ldflags2=`$PYTHON_BIN -c "from distutils import sysconfig; \
+    print(sysconfig.get_config_var(\"LINKFORSHARED\").replace( \
+    \"${py_framework_path}\", ''))"`
+
+  PYTHON_LDFLAGS="$py_ldflags1 $py_ldflags2"
+
+  PYTHON_LIBS=`$PYTHON_BIN -c 'from distutils import sysconfig; \
+    print(sysconfig.get_config_var("LIBS"))'`
+fi
+
+INCLUDES="$ac_build_addl_includes"
+LIBDIRS="$ac_build_addl_libdirs $PYTHON_LDFLAGS"
+MODULE_LIBS="$PYTHON_LIBS"
+
+AC_SUBST(INCLUDES)
+AC_SUBST(LDFLAGS)
+AC_SUBST(LIBDIRS)
+AC_SUBST(MODULE_LIBS)
+AC_SUBST(PYTHON_BIN)
+AC_SUBST(PYTHON_CFLAGS)
+AC_SUBST(PYTHON_INCLUDES)
+AC_SUBST(PYTHON_LDFLAGS)
+AC_SUBST(PYTHON_LIBS)
+
+AC_CONFIG_HEADER(mod_python.h)
+AC_OUTPUT(
+  t/Makefile
+  Makefile
+)

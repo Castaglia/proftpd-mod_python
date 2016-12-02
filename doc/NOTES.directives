@@ -1,0 +1,23 @@
+
+These are the config directives that the Apache mod_python provides:
+
+  PythonAccessHandler
+  PythonAuthenHandler
+  PythonAutoReload
+    * Use a PythonOptions value for this?
+  PythonAuthzHandler
+  PythonCleanupHandler
+  PythonConnectionHandler
+  PythonDebug
+    * will not implement
+  PythonHandler
+  PythonImport
+  PythonInitHandler
+  PythonInterpreter
+  PythonLogHandler
+  PythonHandlerModule
+  PythonOptimize
+  PythonOption
+  PythonPath
+  PythonInputFilter
+  PythonOutputFilter
