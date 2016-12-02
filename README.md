@@ -13,5 +13,8 @@ Synopsis
 The `mod_python` module for ProFTPD embeds a Python interpreter within the
 server.  This enables using Python to extend ProFTPD functionality.
 
+**NOTE**: The `mod_python` module is still be developed, and **is not ready
+for production use!**
+
 See the [mod_python.html](https://htmlpreview.github.io/?https://github.com/Castaglia/proftpd-mod_python/blob/master/mod_python.html) documentation for more
 details.
