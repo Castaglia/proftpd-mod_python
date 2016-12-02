@@ -4,6 +4,7 @@ proftpd-mod_python
 Status
 ------
 [![Build Status](https://travis-ci.org/Castaglia/proftpd-mod_python.svg?branch=master)](https://travis-ci.org/Castaglia/proftpd-mod_python)
+[![Coverage Status](https://coveralls.io/repos/github/Castaglia/proftpd-mod_python/badge.svg?branch=master)](https://coveralls.io/github/Castaglia/proftpd-mod_python?branch=master)
 [![License](https://img.shields.io/badge/license-GPL-brightgreen.svg)](https://img.shields.io/badge/license-GPL-brightgreen.svg)
 
 
