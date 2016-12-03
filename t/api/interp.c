@@ -49,10 +49,40 @@ static void tear_down(void) {
 }
 
 START_TEST (interp_free_test) {
+  int res;
+
+  mark_point();
+  res = python_interp_free();
+  fail_unless(res == 0, "Failed to free interpreter: %s", strerror(errno));
+
+  mark_point();
+  res = python_interp_free();
+  fail_unless(res == 0, "Failed to free interpreter: %s", strerror(errno));
 }
 END_TEST
 
 START_TEST (interp_init_test) {
+  int res;
+
+  mark_point();
+  res = python_interp_init();
+  fail_unless(res == 0, "Failed to init interpreter: %s", strerror(errno));
+
+  mark_point();
+  res = python_interp_init();
+  fail_unless(res == 0, "Failed to init interpreter: %s", strerror(errno));
+
+  mark_point();
+  res = python_interp_free();
+  fail_unless(res == 0, "Failed to free interpreter: %s", strerror(errno));
+
+  mark_point();
+  res = python_interp_init();
+  fail_unless(res == 0, "Failed to init interpreter: %s", strerror(errno));
+
+  mark_point();
+  res = python_interp_free();
+  fail_unless(res == 0, "Failed to free interpreter: %s", strerror(errno));
 }
 END_TEST
 
