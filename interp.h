@@ -1,6 +1,6 @@
 /*
- * ProFTPD - mod_python API testsuite
- * Copyright (c) 2016 TJ Saunders <tj@castaglia.org>
+ * ProFTPD - mod_python: Interpreter
+ * Copyright (c) 2016 TJ Saunders
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,23 +22,12 @@
  * source distribution.
  */
 
-/* Testsuite management */
-
-#ifndef MOD_PYTHON_TESTS_H
-#define MOD_PYTHON_TESTS_H
+#ifndef MOD_PYTHON_INTERP_H
+#define MOD_PYTHON_INTERP_H
 
 #include "mod_python.h"
 
-#ifdef HAVE_CHECK_H
-# include <check.h>
-#else
-# error "Missing Check installation; necessary for ProFTPD testsuite"
-#endif
+int python_interp_init(void);
+int python_interp_free(void);
 
-Suite *tests_get_interpreter_suite(void);
-
-unsigned int recvd_signal_flags;
-extern pid_t mpid;
-extern server_rec *main_server;
-
-#endif /* MOD_PYTHON_TESTS_H */
+#endif /* MOD_PYTHON_INTERP_H */

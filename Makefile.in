@@ -16,9 +16,11 @@ MODULE_NAME=mod_python
 MODULE_CFLAGS=@PYTHON_CFLAGS@
 MODULE_INCLUDES=@PYTHON_INCLUDES@
 MODULE_LIBS=@MODULE_LIBS@
-MODULE_OBJS=mod_python.o
+MODULE_OBJS=mod_python.o \
+  interp.o
 
-SHARED_MODULE_OBJS=mod_python.lo
+SHARED_MODULE_OBJS=mod_python.lo \
+  interp.lo
 
 # Necessary redefinitions
 INCLUDES=-I. -I../.. -I../../include $(MODULE_INCLUDES) @INCLUDES@

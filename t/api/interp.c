@@ -23,6 +23,7 @@
  */
 
 #include "tests.h"
+#include "interp.h"
 
 static pool *p = NULL;
 
@@ -32,13 +33,13 @@ static void set_up(void) {
   }
 
   if (getenv("TEST_VERBOSE") != NULL) {
-    pr_trace_set_levels("python", 1, 20);
+    pr_trace_set_levels("python.interp", 1, 20);
   }
 }
 
 static void tear_down(void) {
   if (getenv("TEST_VERBOSE") != NULL) {
-    pr_trace_set_levels("python", 0, 0);
+    pr_trace_set_levels("python.interp", 0, 0);
   }
 
   if (p) {
@@ -47,20 +48,25 @@ static void tear_down(void) {
   } 
 }
 
-START_TEST (python_test) {
+START_TEST (interp_free_test) {
 }
 END_TEST
 
-Suite *tests_get_python_suite(void) {
+START_TEST (interp_init_test) {
+}
+END_TEST
+
+Suite *tests_get_interp_suite(void) {
   Suite *suite;
   TCase *testcase;
 
-  suite = suite_create("python");
+  suite = suite_create("interp");
   testcase = tcase_create("base");
 
   tcase_add_checked_fixture(testcase, set_up, tear_down);
 
-  tcase_add_test(testcase, python_test);
+  tcase_add_test(testcase, interp_free_test);
+  tcase_add_test(testcase, interp_init_test);
 
   suite_add_tcase(suite, testcase);
   return suite;

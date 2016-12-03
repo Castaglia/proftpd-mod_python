@@ -4224,8 +4224,8 @@ else
 fi
 
 INCLUDES="$ac_build_addl_includes"
-LIBDIRS="$ac_build_addl_libdirs $PYTHON_LDFLAGS"
-MODULE_LIBS="$PYTHON_LIBS"
+LIBDIRS="$ac_build_addl_libdirs"
+MODULE_LIBS="$PYTHON_LDFLAGS $PYTHON_LIBS"
 
 
 

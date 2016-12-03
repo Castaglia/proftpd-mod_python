@@ -27,6 +27,7 @@
 
 #include "mod_python.h"
 #include "privs.h"
+#include "interp.h"
 
 extern xaset_t *server_list;
 
@@ -130,6 +131,8 @@ static void python_mod_unload_ev(const void *event_data, void *user_data) {
     pr_event_unregister(&python_module, NULL, NULL);
     pr_timer_remove(-1, &python_module);
 
+    python_interp_free();
+
     destroy_pool(python_pool);
     python_pool = NULL;
 
@@ -139,17 +142,35 @@ static void python_mod_unload_ev(const void *event_data, void *user_data) {
 }
 #endif /* PR_SHARED_MODULE */
 
+static void python_postparse_ev(const void *event_data, void *user_data) {
+  if (python_engine == FALSE) {
+    return;
+  }
+
+  if (python_interp_init() < 0) {
+    pr_log_pri(PR_LOG_NOTICE, MOD_PYTHON_VERSION
+      ": error initialising Python interpreter");
+    pr_session_disconnect(&python_module, PR_SESS_DISCONNECT_BY_APPLICATION,
+      NULL);
+  }
+}
+
 static void python_restart_ev(const void *event_data, void *user_data) {
+  python_interp_free();
+
   destroy_pool(python_pool);
   python_pool = make_sub_pool(permanent_pool);
   pr_pool_tag(python_pool, MOD_PYTHON_VERSION);
 
   (void) close(python_logfd);
   python_logfd = -1;
+
   open_logfile();
 }
 
 static void python_shutdown_ev(const void *event_data, void *user_data) {
+  python_interp_free();
+
   destroy_pool(python_pool);
   python_pool = NULL;
 
@@ -178,6 +199,8 @@ static int python_init(void) {
   pr_event_register(&python_module, "core.module-unload", python_mod_unload_ev,
     NULL);
 #endif
+  pr_event_register(&python_module, "core.postparse", python_postparse_ev,
+    NULL);
   pr_event_register(&python_module, "core.restart", python_restart_ev, NULL);
   pr_event_register(&python_module, "core.shutdown", python_shutdown_ev, NULL);
   pr_event_register(&python_module, "core.startup", python_startup_ev, NULL);
@@ -186,7 +209,6 @@ static int python_init(void) {
 }
 
 static int python_sess_init(void) {
-  config_rec *c;
 
   if (python_engine == FALSE) {
     return 0;

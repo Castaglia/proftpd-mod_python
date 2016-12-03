@@ -30,7 +30,7 @@ struct testsuite_info {
 };
 
 static struct testsuite_info suites[] = {
-  { "python",		tests_get_python_suite },
+  { "interpreter",	tests_get_interpreter_suite },
 
   { NULL, NULL }
 };
