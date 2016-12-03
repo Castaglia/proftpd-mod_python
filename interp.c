@@ -35,6 +35,60 @@
 
 static const char *trace_channel = "python.interp";
 
+/* Log various Pythonic info. */
+static void log_python_info(void) {
+  const char *info;
+
+  if (pr_trace_get_level(trace_channel) < 7) {
+    return;
+  }
+
+  info = Py_GetPrefix();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Prefix: %s", info);
+  }
+
+  info = Py_GetExecPrefix();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Exec prefix: %s", info);
+  }
+
+  info = Py_GetProgramFullPath();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Python path: %s", info);
+  }
+
+  info = Py_GetPythonHome();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Python home: %s", info);
+  }
+
+  info = Py_GetPath();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Module path: %s", info);
+  }
+
+  info = Py_GetVersion();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Version: %s", info);
+  }
+
+  info = Py_GetPlatform();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Platform: %s", info);
+  }
+
+  info = Py_GetCompiler();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Compiler: %s", info);
+  }
+
+  info = Py_GetBuildInfo();
+  if (info != NULL) {
+    pr_trace_msg(trace_channel, 7, "Build info: %s", info);
+  }
+}
+
 int python_interp_init(void) {
   int init_sigs = 0;
 
@@ -46,24 +100,14 @@ int python_interp_init(void) {
   /* We do NOT want Python handling signals; we will handle signals
    * ourselves.
    */
- Py_InitializeEx(init_sigs);
+  Py_InitializeEx(init_sigs);
 
- if (!Py_IsInitialized()) {
-   errno = EPERM;
-   return -1;
- }
+  if (!Py_IsInitialized()) {
+    errno = EPERM;
+    return -1;
+  }
 
- /* Log various Pythonic info. */
- pr_trace_msg(trace_channel, 7, "prefix: %s", Py_GetPrefix());
- pr_trace_msg(trace_channel, 7, "exec prefix: %s", Py_GetExecPrefix());
- pr_trace_msg(trace_channel, 7, "python path: %s", Py_GetProgramFullPath());
- pr_trace_msg(trace_channel, 7, "python home: %s", Py_GetPythonHome());
- pr_trace_msg(trace_channel, 7, "module path: %s", Py_GetPath());
- pr_trace_msg(trace_channel, 7, "version: %s", Py_GetVersion());
- pr_trace_msg(trace_channel, 7, "platform: %s", Py_GetPlatform());
- pr_trace_msg(trace_channel, 7, "compiler: %s", Py_GetCompiler());
- pr_trace_msg(trace_channel, 7, "build info: %s", Py_GetBuildInfo());
-
+  log_python_info();
   return 0;
 }
 
