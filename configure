@@ -1280,7 +1280,7 @@ Optional Packages:
                           colon-separated list of include paths to add e.g.
                           --with-libraries=/some/mysql/libdir:/my/libs
 
---with-python=PATH path to specific Python binary
+  --with-python=PATH      path to specific Python executable
 
 Some influential environment variables:
   CC          C compiler command
@@ -3724,50 +3724,6 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-# Check whether --enable-devel was given.
-if test "${enable_devel+set}" = set; then
-  enableval=$enable_devel;
-    if test x"$enableval" != xno ; then
-      if test `echo $enableval | grep -c coverage` = "1" ; then
-        UTILS_LIBS="--coverage $UTILS_LIBS"
-      fi
-    fi
-
-fi
-
-
-
-# Check whether --with-includes was given.
-if test "${with_includes+set}" = set; then
-  withval=$with_includes;  ac_addl_includes=`echo "$withval" | sed -e 's/:/ /g'` ;
-    for ainclude in $ac_addl_includes; do
-      if test x"$ac_build_addl_includes" = x ; then
-        ac_build_addl_includes="-I$ainclude"
-      else
-        ac_build_addl_includes="-I$ainclude $ac_build_addl_includes"
-      fi
-    done
-    CPPFLAGS="$CPPFLAGS $ac_build_addl_includes"
-
-fi
-
-
-
-# Check whether --with-libraries was given.
-if test "${with_libraries+set}" = set; then
-  withval=$with_libraries;  ac_addl_libdirs=`echo "$withval" | sed -e 's/:/ /g'` ;
-    for alibdir in $ac_addl_libdirs; do
-      if test x"$ac_build_addl_libdirs" = x ; then
-        ac_build_addl_libdirs="-L$alibdir"
-      else
-        ac_build_addl_libdirs="-L$alibdir $ac_build_addl_libdirs"
-      fi
-    done
-    LDFLAGS="$LDFLAGS $ac_build_addl_libdirs"
-
-fi
-
-
 { echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6; }
 if test "${ac_cv_header_stdc+set}" = set; then
@@ -4084,17 +4040,55 @@ fi
 done
 
 
-{ echo "$as_me:$LINENO: checking for --with-python" >&5
-echo $ECHO_N "checking for --with-python... $ECHO_C" >&6; }
+# Check whether --enable-devel was given.
+if test "${enable_devel+set}" = set; then
+  enableval=$enable_devel;
+    if test x"$enableval" != xno ; then
+      if test `echo $enableval | grep -c coverage` = "1" ; then
+        UTILS_LIBS="--coverage $UTILS_LIBS"
+      fi
+    fi
+
+fi
+
+
+
+# Check whether --with-includes was given.
+if test "${with_includes+set}" = set; then
+  withval=$with_includes;  ac_addl_includes=`echo "$withval" | sed -e 's/:/ /g'` ;
+    for ainclude in $ac_addl_includes; do
+      if test x"$ac_build_addl_includes" = x ; then
+        ac_build_addl_includes="-I$ainclude"
+      else
+        ac_build_addl_includes="-I$ainclude $ac_build_addl_includes"
+      fi
+    done
+    CPPFLAGS="$CPPFLAGS $ac_build_addl_includes"
+
+fi
+
+
+
+# Check whether --with-libraries was given.
+if test "${with_libraries+set}" = set; then
+  withval=$with_libraries;  ac_addl_libdirs=`echo "$withval" | sed -e 's/:/ /g'` ;
+    for alibdir in $ac_addl_libdirs; do
+      if test x"$ac_build_addl_libdirs" = x ; then
+        ac_build_addl_libdirs="-L$alibdir"
+      else
+        ac_build_addl_libdirs="-L$alibdir $ac_build_addl_libdirs"
+      fi
+    done
+    LDFLAGS="$LDFLAGS $ac_build_addl_libdirs"
+
+fi
+
+
 
 # Check whether --with-python was given.
 if test "${with_python+set}" = set; then
-  withval=$with_python;   --with-python=PATH      path to specific Python executable
-else
-
+  withval=$with_python;
     PYTHON_BIN="$withval"
-    { echo "$as_me:$LINENO: result: $PYTHON_BIN" >&5
-echo "${ECHO_T}$PYTHON_BIN" >&6; }
 
 fi
 

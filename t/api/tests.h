@@ -35,7 +35,7 @@
 # error "Missing Check installation; necessary for ProFTPD testsuite"
 #endif
 
-Suite *tests_get_interpreter_suite(void);
+Suite *tests_get_interp_suite(void);
 
 unsigned int recvd_signal_flags;
 extern pid_t mpid;
